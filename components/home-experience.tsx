@@ -7,14 +7,20 @@ type LayerKey = 'skin' | 'outfit' | 'accessory' | 'pedestal';
 
 const currency = new Intl.NumberFormat('en-BD');
 
-function ProductImage({ label, className = '' }: { label: string; className?: string }) {
+function ProductImage({ label, src, className = '' }: { label: string; src?: string; className?: string }) {
+  const [failed, setFailed] = useState(false);
+
   return (
-    <div className={`product-art ${className}`} aria-label={`${label} transparent product photography placeholder`}>
+    <figure className={`product-art ${className}`} aria-label={`${label} transparent product photography`}>
       <div className="product-art__aura" />
-      <div className="product-art__body" />
+      {src && !failed ? (
+        <img src={src} alt={label} loading="lazy" onError={() => setFailed(true)} />
+      ) : (
+        <div className="product-art__body" />
+      )}
       <div className="product-art__pedestal" />
-      <span>{label}</span>
-    </div>
+      <figcaption>{label}</figcaption>
+    </figure>
   );
 }
 
@@ -43,7 +49,7 @@ function Hero() {
     <section className="hero-section" id="top">
       <DustField dense />
       <div className="hero-product" data-sprite="24-frame-couple-orbit">
-        <ProductImage label="Couple miniature" />
+        <ProductImage label="Couple miniature" src="/images/couple.webp" />
       </div>
       <div className="hero-copy">
         <p className="eyebrow">Premium hand-painted miniatures</p>
@@ -97,7 +103,7 @@ function StoryScroll() {
               key={stage.title}
               aria-hidden={!isActive}
             >
-              <ProductImage label={stage.title} />
+              <ProductImage label={stage.title} src={stage.image} />
             </article>
           );
         })}
@@ -116,11 +122,19 @@ function StoryScroll() {
 
 function GalleryAndWorlds() {
   const [selected, setSelected] = useState(galleryCards[0].id);
+  const [rippling, setRippling] = useState(false);
   const selectedWorld = galleryCards.find((card) => card.id === selected) ?? galleryCards[0];
   const style = worldStyles[selectedWorld.id];
 
+  const chooseWorld = (id: typeof galleryCards[number]['id']) => {
+    setSelected(id);
+    setRippling(true);
+    window.setTimeout(() => setRippling(false), 850);
+  };
+
   return (
     <section className="world-gallery" id="worlds">
+      <div className={`screen-ripple ${rippling ? 'is-active' : ''}`} style={{ background: selectedWorld.color }} />
       <DustField />
       <div className="section-heading">
         <p className="eyebrow">The Memory Gallery</p>
@@ -131,11 +145,11 @@ function GalleryAndWorlds() {
           <button
             className={`world-card ${selected === card.id ? 'is-selected' : ''}`}
             key={card.id}
-            onClick={() => setSelected(card.id)}
+            onClick={() => chooseWorld(card.id)}
             style={{ animationDelay: `${index * 85}ms` }}
           >
             <span className="world-card__icon">{card.icon}</span>
-            <ProductImage label={card.title} />
+            <ProductImage label={card.title} src={card.product} />
             <strong>{card.title}</strong>
             <small>{card.copy}</small>
           </button>
@@ -150,10 +164,15 @@ function GalleryAndWorlds() {
           <div className="tab-row">
             {style.tabs.map((tab) => <button key={tab}>{tab}</button>)}
           </div>
+          <div className="before-after" aria-label="Before and after slider mockup">
+            <span>Original Photo</span>
+            <input type="range" min="0" max="100" defaultValue="52" />
+            <span>Finished Miniature</span>
+          </div>
           <a className="btn btn-gold" href="#configurator">Customize This Memory</a>
         </div>
         <div className="world-product-wrap">
-          <ProductImage label={`${selectedWorld.title} hero miniature`} />
+          <ProductImage label={`${selectedWorld.title} hero miniature`} src={selectedWorld.product} />
           <p className="price-shimmer">BDT {currency.format(style.price)}</p>
         </div>
       </article>
@@ -185,11 +204,11 @@ function Configurator() {
     <section className="configurator" id="configurator">
       <div className="configurator-preview">
         <div className="layer-stack" aria-label="Six-layer transparent PNG configurator preview">
-          <div className="preview-layer preview-layer--base"><ProductImage label="Base silhouette" /></div>
-          <div className={`preview-layer preview-layer--skin preview-layer--${layers.skin}`}><ProductImage label={`${layers.skin} skin`} /></div>
-          <div className={`preview-layer preview-layer--outfit preview-layer--${layers.outfit}`}><ProductImage label={`${layers.outfit} outfit`} /></div>
-          <div className={`preview-layer preview-layer--accessory preview-layer--${layers.accessory}`}><ProductImage label={layers.accessory} /></div>
-          <div className={`preview-layer preview-layer--pedestal preview-layer--${layers.pedestal}`}><ProductImage label={`${layers.pedestal} pedestal`} /></div>
+          <div className="preview-layer preview-layer--base"><ProductImage label="Base silhouette" src={configuratorDefaults.layers[0].src} /></div>
+          <div className={`preview-layer preview-layer--skin preview-layer--${layers.skin}`}><ProductImage label={`${layers.skin} skin`} src={`/images/layers/skin-${layers.skin}.webp`} /></div>
+          <div className={`preview-layer preview-layer--outfit preview-layer--${layers.outfit}`}><ProductImage label={`${layers.outfit} outfit`} src={`/images/layers/outfit-${layers.outfit}.webp`} /></div>
+          <div className={`preview-layer preview-layer--accessory preview-layer--${layers.accessory}`}><ProductImage label={layers.accessory} src={`/images/layers/${layers.accessory}.webp`} /></div>
+          <div className={`preview-layer preview-layer--pedestal preview-layer--${layers.pedestal}`}><ProductImage label={`${layers.pedestal} pedestal`} src={`/images/layers/pedestal-${layers.pedestal}.webp`} /></div>
           <canvas className="preview-layer preview-layer--engraving" aria-label="Dynamic engraving canvas layer" />
           <strong className="engraving-text">{engraving}</strong>
         </div>
@@ -237,7 +256,7 @@ function ReviewCheckoutAndAftercare() {
   return (
     <>
       <section className="review" id="review">
-        <ProductImage label="Your Memory" />
+        <ProductImage label="Your Memory" src="/images/review-memory.webp" />
         <div>
           <p className="eyebrow">Design Review</p>
           <h2 className="gold-text">Your Memory.</h2>
@@ -256,6 +275,7 @@ function ReviewCheckoutAndAftercare() {
           <p className="eyebrow">Quiet, trusted checkout</p>
           <h2>Begin the Making</h2>
           <p>Guest checkout enabled. SSLCommerz-ready payment lanes for bKash, Nagad, cards, and bank routes.</p>
+          <p className="slot-note">5 commission slots remain this month.</p>
           <button className="btn btn-gold">Begin the Making →</button>
         </div>
       </section>
@@ -277,7 +297,7 @@ function ProductDetailAndMuseum() {
     <>
       <section className="iconic-product">
         <div>
-          <ProductImage label="Ducati sprite sheet" />
+          <ProductImage label="Ducati sprite sheet" src="/images/ducati_studio.webp" className="product-art--detail" />
           <div className="choice-row choice-row--center"><button>🔆 Studio Lighting</button><button>🌙 Night Lighting</button></div>
         </div>
         <div>
@@ -292,13 +312,13 @@ function ProductDetailAndMuseum() {
       <section className="unboxing">
         <div className="section-heading"><p className="eyebrow">Seven-layer unboxing</p><h2 className="gold-text">The goodbye is thankful. The arrival is ceremonial.</h2></div>
         <div className="unboxing-steps">
-          {['Branded box', 'Wooden box', 'Tissue', 'Foam', 'Miniature', 'Certificate', 'Handwritten note'].map((step) => <article key={step}><ProductImage label={step} /><strong>{step}</strong></article>)}
+          {['Branded box', 'Wooden box', 'Tissue', 'Foam', 'Miniature', 'Certificate', 'Handwritten note'].map((step) => <article key={step}><ProductImage label={step} src={`/images/unboxing/${step.toLowerCase().replace(/\s+/g, '-')}.webp`} /><strong>{step}</strong></article>)}
         </div>
       </section>
       <section className="museum">
         <div className="section-heading"><p className="eyebrow">Memory Keepers Wall</p><h2 className="gold-text">Proof that the emotion survives the making.</h2></div>
         <div className="museum-grid">
-          {keepsakes.map((memory) => <article key={memory}><ProductImage label={memory} /><h3>{memory}</h3><p>“She cried when she opened it.”</p></article>)}
+          {keepsakes.map((memory) => <article key={memory}><ProductImage label={memory} src={`/images/museum/${memory.toLowerCase().split(' ')[0]}.webp`} /><h3>{memory}</h3><p>“She cried when she opened it.”</p></article>)}
         </div>
       </section>
     </>

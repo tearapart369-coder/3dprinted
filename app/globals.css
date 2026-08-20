@@ -128,6 +128,20 @@ textarea { min-height: 8.5rem; resize: vertical; }
 @keyframes cardIn { from { opacity: 0; transform: translateY(40px) scale(.9) rotate(-3deg); } to { opacity: 1; transform: translateY(0) scale(1) rotate(0); } }
 @keyframes textSettle { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
 
+.product-art { margin: 0; }
+.product-art img { position: absolute; z-index: 2; inset: 7%; width: 86%; height: 76%; object-fit: contain; filter: drop-shadow(0 36px 70px rgba(0,0,0,.28)); }
+.product-art figcaption { position: relative; z-index: 3; max-width: 70%; text-align: center; font-family: var(--font-playfair), serif; font-size: clamp(1.8rem, 5vw, 3.3rem); line-height: 1; pointer-events: none; }
+.product-art img + .product-art__pedestal + figcaption { opacity: .18; }
+.screen-ripple { position: fixed; inset: 0; z-index: 50; pointer-events: none; clip-path: circle(0% at 50% 50%); opacity: 0; transition: clip-path 800ms ease-in-out, opacity 180ms ease; }
+.screen-ripple.is-active { clip-path: circle(150% at 50% 50%); opacity: .92; }
+.before-after { display: grid; grid-template-columns: auto minmax(140px, 1fr) auto; align-items: center; gap: .75rem; margin: 1.25rem 0; padding: .85rem; border: 1px solid currentColor; border-radius: 999px; background: rgba(255,255,255,.12); font-size: .85rem; font-weight: 800; }
+.before-after input { margin: 0; padding: 0; accent-color: var(--gold); }
+.product-art--detail { cursor: zoom-in; }
+.product-art--detail::after { content: 'Detail reveal lens'; position: absolute; z-index: 5; width: 34%; aspect-ratio: 1; border-radius: 50%; border: 1px solid rgba(255,255,255,.7); background: radial-gradient(circle, rgba(255,255,255,.22), rgba(201,168,76,.12)); box-shadow: 0 0 35px rgba(201,168,76,.34); opacity: 0; transform: translate(22%, -18%) scale(.7); transition: opacity .25s ease, transform .25s ease; pointer-events: none; display: grid; place-items: center; color: white; font-size: .78rem; font-weight: 900; text-align: center; }
+.product-art--detail:hover::after { opacity: 1; transform: translate(22%, -18%) scale(1); }
+.slot-note { display: inline-flex; border-radius: 999px; padding: .7rem 1rem; background: rgba(201,168,76,.16); color: #6f5515 !important; font-weight: 900; }
+@media (max-width: 640px) { .before-after { grid-template-columns: 1fr; border-radius: 1.3rem; } }
+
 @media (max-width: 920px) {
   .gallery-grid, .world-deep-dive, .configurator, .review, .iconic-product { grid-template-columns: 1fr; }
   .configurator-preview { height: 62vh; z-index: 4; }
